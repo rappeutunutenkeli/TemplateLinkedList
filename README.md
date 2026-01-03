@@ -167,4 +167,47 @@ bool LinkedList<T>::pop_tail(T& outValue) {
 Метод, который удаляет элемент из конца списка и возвращает его значение через параметр outValue.
 
 Если в списке более 2 элементов, то заводим 2 указателя: на предпоследний элемент и последний. Когда tail указывает на nullprt, сохраняем значение в outValue и освобождаем память, теперь prev будет являться последним и указывать на nullprt, а счетчик элементов уменьшаем.
+### 9. Метод удаления элемента из начала списка
+```cpp
+template<typename T>
+bool LinkedList<T>::pop_head(T& outValue) {
+    if (head == nullptr) return false;
 
+    Node<T>* toDelete = head;
+    outValue = head->data;
+    head = head->next;
+    delete toDelete;
+    --count;
+    return true;
+}
+```
+Метод, который удаляет элемент из начала списка и возвращает его значение через параметр outValue.
+
+Создаем указатель на удаляемый узел и сохраняем значение, находящееся в голове списка. Голову перемещаем на следующий узел, а предыдущую голову удаляем. Обновляем счетсчик после удаления.
+### 10. Метод удаления узла с конкретным заданным значением
+```cpp
+template<typename T>
+void LinkedList<T>::delete_node(const T& targetVal) {
+    Node<T>* current = head;
+    Node<T>* previous = nullptr;
+
+    while (current != nullptr) {
+        if (current->data == targetVal) {
+            if (previous == nullptr) {
+                head = current->next;
+            }
+            else {
+                previous->next = current->next;
+            }
+            delete current;
+            current = previous ? previous->next : head;
+            --count;
+        }
+        else {
+            previous = current;
+            current = current->next;
+        }
+    }
+}
+```
+Метод, который проходит по всему списку и удаляет все узлы, содержащие значение targetVal.
