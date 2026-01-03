@@ -55,3 +55,69 @@ LinkedList<T>::~LinkedList() {
 Это специальная функция, которая автоматически вызывается при уничтожении объекта LinkedList. Её задача — освободить все ресурсы, которые объект захватил за время жизни.
 
 Пока список не пуст, мы заводим временный указатель на текущий узел и от head идем дальше по списку, но temp остается на предыдущем узле, его и удаляем. Далее temp будет указывать на второй и так далее узлы, удаляя их.
+### 4. Оператор присваивания
+```cpp
+template<typename T>
+LinkedList<T>& LinkedList<T>::operator=(const LinkedList<T>& rhs) {
+    if (&rhs == this) return *this;
+
+    while (head != nullptr) {
+        Node<T>* temp = head;
+        head = head->next;
+        delete temp;
+    }
+
+    if (rhs.head != nullptr) {
+        head = new Node<T>(rhs.head->data);
+        Node<T>* currentThis = head;
+        Node<T>* currentOther = rhs.head->next;
+
+        while (currentOther != nullptr) {
+            currentThis->next = new Node<T>(currentOther->data);
+            currentThis = currentThis->next;
+            currentOther = currentOther->next;
+        }
+    }
+
+    count = rhs.count;
+    return *this;
+}
+```
+Это оператор, который позволяет присвоить один объект LinkedList другому.
+
+Сначала мы проверяем не присваивается ли объект самому себе, а далее используется логика деструктора и конструктора копирования, описанная ранее. Но в данном случае, мы просто заменяем данные в списке, а не создаем новый с нуля.
+### 5. Оператор сложения
+```cpp
+template<typename T>
+LinkedList<T> LinkedList<T>::operator+(const LinkedList<T>& rhs) {
+    LinkedList<T> result(*this);
+    for (size_t i = 0; i < rhs.size(); ++i) {
+        result.push_tail(rhs.at(i));
+    }
+    return result;
+}
+```
+Мы создаем новый список, в котором сначала идут все элементы левого списка (*this), после них идут элементы правого списка (rhs), таким образом "складывая" два связных списка.
+### 6. Метод добавления элемента в хвост списка
+```cpp
+template<typename T>
+void LinkedList<T>::push_tail(const T& val) {
+    auto* node = new Node<T>(val);
+    if (head == nullptr) {
+        head = node;
+    }
+    else {
+        Node<T>* last = head;
+        while (last->next != nullptr) {
+            last = last->next;
+        }
+        last->next = node;
+    }
+    ++count;
+}
+```
+Метод, который добавляет новый элемент с заданным значением в хвост связного списка.
+
+Создаем новый узел, который содержит данные, которые как раз и хотим добавить в конец списка. Если список не пуст, то ищем последний узел. Как понять что мы в хвосте списка? Указатель next должен указывать на nullptr.
+
+Новый созданный узел добавляем после хвоста. Увеличиваем количество элементов нашего списка.
